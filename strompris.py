@@ -49,6 +49,27 @@ def fetch_day_prices(date: datetime.date = None, location: str = "NO1") -> pd.Da
     return df
 
 
+def fetch_weekly_average_prices(location: str = 'NO1') -> pd.DataFrame:
+    """
+    Fetches and calculates the average electricity prices for the past week for a specific location.
+
+    Args:
+        location (str): The location code for which to fetch average prices.
+
+    Returns:
+        pd.DataFrame: A dataframe containing the average prices for each day of the past week.
+    """
+    end_date = datetime.date.today()
+    start_date = end_date - datetime.timedelta(days=7)
+    dfs = []
+    for single_date in (start_date + datetime.timedelta(n) for n in range(7)):
+        daily_df = fetch_day_prices(date=single_date, location=location)
+        daily_avg_price = {'date': single_date, 'average_price': daily_df['NOK_per_kWh'].mean()}
+        dfs.append(pd.DataFrame([daily_avg_price]))
+    weekly_avg_df = pd.concat(dfs)
+    return weekly_avg_df
+
+
 # LOCATION_CODES maps codes ("NO1") to names ("Oslo")
 LOCATION_CODES = {
     "NO1": "Oslo",

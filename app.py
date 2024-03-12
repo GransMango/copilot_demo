@@ -17,7 +17,7 @@ from strompris import (
     fetch_day_prices,
     fetch_prices,
     plot_activity_prices,
-    plot_prices,
+    plot_prices, fetch_weekly_average_prices,
 )
 
 app = FastAPI(title="FastAPI Strompris",
@@ -106,6 +106,21 @@ async def get_plot(location: str = "NO1", activity : str = "shower", minutes: in
     df = fetch_day_prices(datetime.date.today(), location)
     chart = plot_activity_prices(df, activity, minutes)
     return chart.to_dict()
+
+
+@app.get("/weekly_average_prices")
+async def get_weekly_average_prices(location: str = Query("NO1", enum=list(LOCATION_CODES.keys()))):
+    """
+    Endpoint to get weekly average electricity prices for a specified location.
+    Args:
+        location (str): Location to get the prices for. Defaults to "NO1".
+
+    Returns:
+        dict: A dictionary containing the average prices for the past week.
+    """
+    weekly_avg_df = fetch_weekly_average_prices(location=location)
+    return weekly_avg_df.to_dict(orient='records')
+
 
 # mount your docs directory as static files at `/help`
 
